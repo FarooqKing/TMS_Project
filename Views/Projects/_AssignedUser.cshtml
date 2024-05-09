@@ -1,0 +1,71 @@
+﻿@model TMS_Project.Models.Project
+
+
+@{
+    ViewData["Title"] = "Assign Project To Team Lead";
+}
+
+
+
+
+<div class="col-lg-12">
+    <div class="card">
+
+        <form asp-action="AssignedTeams" id="AssignProjectToTeamLeadForm">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="ProjectId" id="hdnProjectId" />
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+
+                        <label asp-for="ProjectName" class="control-label"> Project </label>
+                        <input asp-for="ProjectName" id="projectName" class="form-control" style="background-color: lightgray;" readonly />
+                        <span asp-validation-for="ProjectName" class="text-danger"></span>
+                    </div>
+
+                </div>
+
+
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="Manager.UserName" class="control-label">Manager</label>
+                        <input type="text" asp-for="Manager.UserName" id="managerName" class="form-control" readonly style="background-color: lightgray;" />
+                        <!-- Hidden field to store the Manager's UserId if needed -->
+                        <input type="hidden" asp-for="Manager.UserId" id="managerid" />
+                        <span asp-validation-for="Manager.UserName" class="text-danger"></span>
+                    </div>
+                </div>
+
+
+            </div>
+
+
+            <div class="row">
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="TeamLeadId" class="control-label">Team Lead</label>
+                        <select asp-for="TeamLeadId" id="teamleadid" class="form-control" asp-items="ViewBag.teamlead"></select>
+                        <span asp-validation-for="TeamLeadId" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row " style="float:right !important">
+                <div class="form-group">
+                    <a onclick="AssignProjectToTeamlead()" class="btn btn-primary btn mb-2">Save</a>
+
+
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+

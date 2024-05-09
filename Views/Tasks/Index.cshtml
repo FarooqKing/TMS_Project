@@ -1,0 +1,308 @@
+﻿@model IEnumerable<TMS_Project.Models.Task>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">Users Tasks</h4>
+                @if (User.IsInRole("Team Lead"))
+                {
+                <a id="btnCreateTask" class="btn btn-primary">Create New</a>
+                                            }
+                                            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="example4" class="display table table-striped">
+                        <thead>
+                            <tr>
+                                <th>
+                                    Title
+                                </th>
+                                <th>
+                                    Description
+                                </th>
+                                <th>
+                                    DueDate
+                                </th>
+                                <th>
+                                    Priority
+                                </th>
+                                <th>
+                                    AssignedTo
+                                </th>
+
+                                <th>
+                                    Project
+                                </th>
+                                <th>
+                                    Status
+                                </th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                      
+                            @foreach (var item in Model)
+                            {
+                                var Priority = "";
+                                switch (item.Priority)
+                                {
+                                    case 1:
+                                        Priority = "Low";
+                                        break;
+                                    case 2:
+                                        Priority = "Medium";
+                                        break;
+                                   default :
+                                        Priority = "High";
+                                        break;
+                                
+                                }
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Title)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Description)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.DueDate)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => Priority)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.AssignedToNavigation.UserName)
+                                    </td>
+
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Project.ProjectName)
+                                    </td>
+                                    <td>
+                                        <span class="badge dark badge-success">
+
+                                        @Html.DisplayFor(modelItem => item.Status.StatusName)
+                                        </span>
+                                    </td>
+                                    <td>
+
+                                        @if (User.IsInRole("Team Lead"))
+                                        {
+                                            <div class="d-flex">
+                                                <a class="btn btn-info btn-sm m-2" onClick=EditTask(@item.TaskId) title="Edit"><i class="fa fa-edit"></i></a>
+
+                                                <a class="btn btn-warning btn-sm m-2" href="@Url.Action("TaskDetail", "Tasks", new { id = item.TaskId })"><i class="fa fa-info"></i></a>
+                                                <form asp-action="Delete" class="deleteForm">
+                                                    <input type="hidden" name="id" value="@item.TaskId" asp-for="@item.TaskId" />
+                                                    <button type="submit" class="btn btn-danger btn-sm m-2"><i class="fa fa-trash"></i></button>
+                                                </form>
+
+
+
+                                            </div>
+                                        } @if (User.IsInRole("Team member"))
+                                        {
+                                            <div class="d-flex">
+                                              @*   <a class="btn btn-info btn-sm m-2" onClick=EditTask(@item.TaskId) title="Edit"><i class="fa fa-edit"></i></a>
+ *@
+                                                <a class="btn btn-warning btn-sm m-2" onclick="TaskStatus(@item.TaskId)" >    <i class="fa-solid fa-pen-nib"></i></a>
+                                                <a class="btn btn-warning btn-sm m-2" href="@Url.Action("TaskDetail", "Tasks", new { id = item.TaskId })">Followup</a>
+
+
+                                            </div>
+                                        }
+
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+                                        @* Create and edit modal *@
+<div class="modal fade bd-example-modal-lg" id="TaskCreate" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="CreateModalHeader"> </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal">
+                </button>
+            </div>
+            <div class="modal-body" id="createTaskPreview">
+                @await Html.PartialAsync("/Views/Tasks/_Create.cshtml", new TMS_Project.Models.Task())
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade bd-example-modal-lg" id="TaskStatus" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="StatusModalHeader"> </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal">
+                </button>
+            </div>
+            <div class="modal-body" id="StatusTaskPreview">
+                @await Html.PartialAsync("/Views/Tasks/_TaskStatus.cshtml", new TMS_Project.Models.Task())
+            </div>
+
+
+        </div>
+    </div>
+</div>
+                                                @* Detail modal *@
+<div class="modal fade bd-example-modal-lg" id="TaskDetail" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"> Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal">
+                </button>
+            </div>
+            <div class="modal-body" id="DetailTaskPreview">
+                @await Html.PartialAsync("/Views/Tasks/_Details.cshtml", new TMS_Project.Models.Task())
+            </div>
+
+        </div>
+    </div>
+</div>
+@section Scripts {
+
+    <script type="text/javascript">
+        //Create Function
+
+        $(function () {
+            $("#btnCreateTask").click(function () {
+                $("#CreateModalHeader").text("Create Task");
+                $("#btnCreateTaskPost").text("Create Task");
+                $("#btnCreateTaskPost").addClass("btn-primary");
+                $("#btnCreateTaskPost").removeClass("btn-warning");
+
+                $("#TaskCreate").modal("show");
+            });
+
+
+        })
+        //Server Side Validation Function
+        function InsertTask() {
+
+            var form = $("#CreateTaskForm")[0];
+            var isvalid = form.checkValidity();
+
+            if (!isvalid) {
+            }
+            else {
+
+
+                $.ajax({
+                    url: '@Url.Action("Create", "Tasks")',
+                    type: 'POST',
+                    data: $(form).serialize(),
+                    success: function (data) {
+                        if (data.success) {
+                            window.location.reload();
+                        }
+                        // check if response contains partial view
+                        $("#createTaskPreview").html(data.responseData);
+
+                        if ($("#hdnTaskId").val() > 0) {
+
+
+                            $("#btnCreateTaskPost").text("Update Task");
+                            $("#btnCreateTaskPost").addClass("btn-warning");
+                            $("#btnCreateTaskPost").removeClass("btn-primary");
+                        }
+                        else {
+                            $("#btnCreateTaskPost").text("Create Task");
+                            $("#btnCreateTaskPost").addClass("btn-primary");
+                            $("#btnCreateTaskPost").removeClass("btn-warning");
+                        }
+
+                        $("#TaskCreate").modal("show");
+                    }
+                });
+            }
+            form.classList.add("was-validated");
+            return false;
+        }
+
+        //Edit Function
+        function EditTask(taskId) {
+
+            $.ajax({
+                type: "Get",
+                url: '@Url.Action("Edit", "Tasks")',
+                data: { id: taskId },
+                success: function (data) {
+                    $('#createTaskPreview').html(data);
+                    $("#CreateModalHeader").text("Update Task");
+                    $("#btnCreateTaskPost").text("Update Task");
+                    $("#btnCreateTaskPost").addClass("btn-warning");
+                    $("#btnCreateTaskPost").removeClass("btn-primary");
+                    $("#TaskCreate").modal('show');
+
+                }
+            });
+        }
+        function TaskStatus(taskId) {
+
+            $.ajax({
+                type: "Get",
+                url: '@Url.Action("TaskStatus", "Tasks")',
+                data: { id: taskId },
+                success: function (data) {
+                    $('#StatusTaskPreview').html(data);
+                    $("#TaskStatus").modal('show');
+
+                }
+            });
+        }
+        function DetailsTask(taskId) {
+
+            $.ajax({
+                type: "Get",
+                url: '@Url.Action("Details", "Tasks")',
+                data: { id: taskId },
+                success: function (data) {
+                    $('#DetailTaskPreview').html(data);
+
+                    $('#TaskDetail').modal('show');
+
+                }
+            })
+        }
+
+        $('.deleteForm').submit(function (event) {
+            var form = this;
+            event.preventDefault();
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, delete it!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                    // If user confirms, form submission proceeds as usual
+                } else {
+                    event.preventDefault();
+                }
+            });
+        });
+
+    </script>
+}

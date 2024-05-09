@@ -1,0 +1,62 @@
+﻿@model TMS_Project.Models.Task
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Task</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="TaskId" />
+            <div class="form-group">
+                <label asp-for="Title" class="control-label"></label>
+                <input asp-for="Title" class="form-control" required />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <input asp-for="Description" class="form-control" required />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DueDate" class="control-label"></label>
+                <input asp-for="DueDate" class="form-control" required />
+                <span asp-validation-for="DueDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Priority" class="control-label"></label>
+                <select asp-for="Priority" class="form-control" asp-items="ViewBag.Priority">
+                    <option>------Select User-------</option>
+                </select>
+                <span asp-validation-for="Priority" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="StatusId" class="control-label"></label>
+                <select asp-for="StatusId" class="form-control" asp-items="ViewBag.StatusId"></select>
+                <span asp-validation-for="StatusId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AssignedTo" class="control-label">Assigned To</label>
+                <select asp-for="AssignedTo" class="form-control" asp-items="ViewBag.AssignedTo">
+                    <option>------Select User-------</option>
+                </select>
+                <span asp-validation-for="AssignedTo" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="ProjectId" class="control-label"></label>
+                <select asp-for="ProjectId" class="form-control" asp-items="ViewBag.ProjectId"></select>
+                <span asp-validation-for="ProjectId" class="text-danger"></span>
+            </div>
+
+
+        </form>
+    </div>
+</div>
+
+

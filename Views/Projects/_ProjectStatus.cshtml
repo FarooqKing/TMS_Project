@@ -1,0 +1,97 @@
+﻿@model TMS_Project.Models.Project
+
+<div class="col-lg-12">
+    <div class="card">
+        <form id="projectStatusForm">
+
+
+            <div class="row">
+
+                <div class="col-md-6">
+
+                    <div class="form-validation">
+                        <form asp-action="Create" id="CreateStatusForm" class="needs-validation" novalidate>
+                            <input type="hidden" asp-for="ProjectId" id="hdnProjectStatusId" />
+                            <div class="form-group">
+
+                                <div class="col-md-6">
+                                    <label asp-for="StatusId" class="control-label">Status Name</label>
+                                    <select asp-for="StatusId" class="form-control" >
+                                        <option>------Select Project Status-------</option>
+                                        @if(User.IsInRole("Team Lead"))
+                                        {
+                                            
+                                        <option value="1006">Pending</option>
+                                        <option value="1007">Inprogress</option>
+                                        <option value="1004">Complete</option>
+                                        }
+                                        @if (User.IsInRole("Project Manager"))
+                                        {
+
+                                            <option value="1009">Approved</option>
+                                            <option value="1005">Reject</option>
+                                        }
+
+                                    </select>
+
+                                </div>
+                                <span class="text-danger"></span>
+
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="row">
+
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="control-label">Comment</label>
+                        <textarea class="form-control" id="textArea" rows="10" placeholder="Write something" style="margin-bottom:1rem"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="row " style="float:right !important">
+                <div class="form-group">
+                    <a onclick="ProjectStatusFunc()" class="btn btn-primary btn mb-2">Update Status</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+
+    <script type="text/javascript">
+ // function ProjectStatusFunc() {
+
+ //     alert('aaaa');
+ //            var form = $("#CreateStatusForm")[0];
+
+
+ //                $.ajax({
+ //                    url: '@Url.Action("ProjectStatus", "Projects")',
+ //                    type: 'POST',
+ //                    data: $(form).serialize(),
+ //                    success: function (data) {
+ //                        if (data.success) {
+
+ //                            window.location.reload();
+ //                        }
+ //                        // Check if response contains partial view
+ //                        $("#projectStatusPreview").html(data);
+
+ //                        $("#projectStatus").modal("show");
+ //                    }
+ //                });
+
+ //            form.classList.add("was-validated");
+ //            return false;
+
+ //        }
+
+        </script>
+
+        }

@@ -1,0 +1,78 @@
+﻿@model IEnumerable<TMS_Project.Models.ActivityLog>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">Activity Logs</h4>
+                <a asp-action="Create" class="btn btn-primary">Create New</a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="example4" class="display table table-striped">
+                        <thead>
+                            <tr>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.DateTime)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.LogText)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Project)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Task)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.User)
+                                </th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.DateTime)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.LogText)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Project.ProjectId)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Task.TaskId)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.User.UserId)
+                                    </td>
+                                    <td>
+                                        <div class="d-flex">
+                                            <a asp-action="Edit" class="btn btn-info btn-sm m-2" asp-route-id="@item.LogsId" title="Edit"><i class="fa fa-edit"></i></a>
+                                            <a asp-action="Details" class="btn btn-warning btn-sm m-2" asp-route-id="@item.LogsId"><i class="fa fa-info"></i></a>
+                                            <a asp-action="Delete" class="btn btn-danger btn-sm m-2" asp-route-id="@item.LogsId"><i class="fa fa-trash"></i></a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+
+    <script type="text/javascript">
+
+    </script>
+}

@@ -1,0 +1,42 @@
+﻿@model IEnumerable<TMS_Project.Models.User>
+@{
+    ViewData["Title"] = "Team";
+}
+
+<div class="col-12">
+    <div class="card">
+        <div class="card-header">
+            <h4 class="card-title">@Model.FirstOrDefault().Manager.UserName Team</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="example" class="display" style="min-width: 845px">
+                    <thead>
+                        <tr>
+                            <th>User Name</th>
+                            <th>Email</th>
+
+                            <th>Role</th>
+                            <th>Contact</th>
+
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in Model)
+                        {
+                            <tr>
+                                <td><a href="@(user.Role.RoleName.ToLower()=="team member"?"#":$"/Users/Team/{user.UserId}")">@user.UserName</a></td>
+                                <td>@user.Email</td>
+
+                                <td>@user.Role.RoleName</td>
+                                <td>@user.Contact</td>
+
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

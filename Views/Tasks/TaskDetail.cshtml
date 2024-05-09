@@ -1,0 +1,265 @@
+﻿@* @model IEnumerable<TMS_Project.Models.Followup> *@
+@model TMS_Project.Models.Task
+@{
+    ViewData["Title"] = "TaskDetail";
+}
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+@* <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/fontawesome.min.css" integrity="sha384-BY+fdrpOd3gfeRvTSMT+VUZmA728cfF9Z2G42xpaRkUGu2i3DyzpTURDo5A6CaLK" crossorigin="anonymous"> *@
+<link href="\assets\css\timeline.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+
+
+
+
+<div class="card">
+
+    <div class="row TastDetail">
+        <h2>Task Detail</h2>
+        <div class="col-lg-4 col-md-6 col-sm-12 card-item">
+            <h3 class="card-title">
+                Title
+            </h3>
+            <input type="hidden" id="hdnTaskDetailId" asp-for="TaskId" />
+            <p> @Html.DisplayFor(model => model.Title)</p>
+
+        </div>
+        <div class="col-lg-4 col-md-6 col-sm-12 card-item">
+            <h3 class="card-title">Description</h3>
+            <p>@Html.DisplayFor(model => model.Description)</p>
+        </div>
+        <div class="col-lg-4 col-md-6 col-sm-12 card-item">
+            <h3 class="card-title">
+                Due Date
+            </h3>
+            <p>
+                @Model.DueDate?.ToString("dd MMM, yyyy HH:mm tt")
+            </p>
+        </div>
+        <div class="col-lg-4 col-md-6 col-sm-12 card-item">
+            <h3 class="card-title">Assign User</h3>
+            <p>@Html.DisplayFor(model => model.AssignedToNavigation.UserName)</p>
+        </div>
+        <div class="col-lg-4 col-md-6 col-sm-12 card-item">
+            <h3 class="card-title"> Project</h3>
+            <p> @Html.DisplayFor(model => model.Project.ProjectName)</p>
+        </div>
+        <div class="col-lg-4 col-md-6 col-sm-12 card-item">
+            <h3 class="card-title"> Status</h3>
+            <p> @Html.DisplayFor(model => model.Status.StatusName)</p>
+        </div>
+
+
+
+
+    </div>
+
+</div>
+
+
+
+
+
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <h3>Task FollowUp Detail</h3>
+                 @if (User.IsInRole("Team member"))
+                {
+                    <a id="btnCreateFollowup" class="btn btn-primary">Create New</a>
+                }
+            </div>
+            <div class="card-body">
+                <ul class="timeline" style=";display:flex ;flex-Direction:column;margin:auto " >
+                    @{
+                        int count = 1;
+                        foreach (var item in Model.Followups)
+                        {
+                            var invertClass = "";
+                            if (count % 2 == 0)
+                            {
+                                invertClass = "timeline-inverted";
+                            }
+                            var statusBgColor = "";
+                            var statusColor = "color:#000";
+                            var EditFunction = "";
+                            var icon = "fa fa-check";
+                            var iconColor = "";
+
+                                        if (@item.Status == "Pending" || @item.Status == "OverDue" || @item.Status == "Inprogress")
+                            {
+                                EditFunction = $"EditFollowup({item.FollowupId})";
+
+                            }
+                            if (@item.Status == "Complete" || @item.Status == "OverDue" || @item.Status == "Inprogress")
+                            {
+                                statusColor = "color:#fff";
+
+                            }
+                            // Assigning different background colors based on item status
+                            switch (item.Status)
+                            {
+                                case "Pending":
+                                    statusBgColor = "background-color: #f7f7f7;";
+                                    icon = "fa fa-hourglass-half";
+                                    iconColor = "color:#000  ";
+                                    break;
+                                case "Complete":
+                                    statusBgColor = "background-color:#459b58;";
+                                    break;
+                                case "Cancel":
+                                    statusBgColor = "background-color: #ffffcc;";
+                                    icon = "fa fa-times";
+                                    iconColor = "color:#c73f3f  ";
+                                    break;
+                                case "OverDue":
+                                    statusBgColor = "background-color: #dc3545;";
+                                    icon = "fa fa-clock";
+                                    iconColor = "color:#fff  ";
+                                    break;
+                                case "Inprogress":
+                                    statusBgColor = "background-color: #17a2b8;";
+                                    icon = "fa fa-spinner";
+                                    break;
+                                default:
+                                    statusBgColor = "";
+                                    break;
+                            }
+                            <li class="@invertClass">
+                                <div class="timeline-badge " style="z-index:0 ;@statusBgColor " >
+                                    <i class="@icon" style="@iconColor"></i>
+                                </div>
+
+                                <div class="timeline-panel" style="@statusBgColor @statusColor ; border-radius:20px;padding:14px" >
+                            
+                                        <div class="timeline-heading" onclick="@EditFunction">
+                                            <h3 class="timeline-title">@item.FollowupTitle (@item.Status)</h3>
+                                            <p style="@statusColor">
+                                               
+                                                    <i class="fa fa-clock-o"></i>
+                                                    @item.DueDate?.ToString("dd MMM, yyyy HH:mm tt")
+                                               
+                                            </p>
+                                        </div>
+                            
+                                    <div class="timeline-body">
+                                        <p>@item.Remarks</p>
+                                    </div>
+                    
+                                </div>
+                            </li>
+                            count++;
+                        }
+                    }
+                </ul>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal fade bd-example-modal-lg" id="FollowupCreate" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="CreateModalHeader"> </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal">
+                </button>
+            </div>
+            <div class="modal-body" id="createFollowupPreview">
+                @await Html.PartialAsync("/Views/Followups/_Create.cshtml", new Followup())
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+@section Scripts {
+
+    <script type="text/javascript">
+
+        $(function () {
+            $("#btnCreateFollowup").click(function () {
+                $("#CreateModalHeader").text("Create Followup");
+                $("#btnCreateFollowupPost").text("Create Followup");
+                $("#btnCreateFollowupPost").addClass("btn-primary");
+                $("#btnCreateFollowupPost").removeClass("btn-warning");
+                $("#FollowupCreate #hdnTaskId").val($("#hdnTaskDetailId").val());
+                $("#FollowupCreate").modal("show");
+            });
+
+        });
+
+
+        function InsertFollowup() {
+
+            var form = $("#CreateFollowupForm")[0];
+            var isValid = form.checkValidity();
+
+            if (!isValid) {
+            }
+            else {
+
+
+                $.ajax({
+                    url: '@Url.Action("Create", "Followups")',
+                    type: 'POST',
+                    data: $(form).serialize(),
+                    success: function (data) {
+                        if (data.success) {
+                            window.location.reload();
+                        }
+                        // Check if response contains partial view
+                        $("#createFollowupPreview").html(data);
+
+                        if ($("#hdnfollowupId ").val() > 0) {
+
+
+                            $("#btnCreateFollowupPost").text("Update Followup");
+                            $("#btnCreateFollowupPost").addClass("btn-warning");
+                            $("#btnCreateFollowupPost").removeClass("btn-primary");
+                        }
+                        else {
+                            $("#btnCreateFollowupPost").text("Create Followup");
+                            $("#btnCreateFollowupPost").addClass("btn-primary");
+                            $("#btnCreateFollowupPost").removeClass("btn-warning");
+                        }
+
+                        $("#FollowupCreate").modal("show");
+                    }
+                });
+            }
+            form.classList.add("was-validated");
+            return false;
+        }
+
+        function EditFollowup(followupId) {
+
+            $.ajax({
+                type: "Get",
+                url: '@Url.Action("Edit", "Followups")',
+                data: { id: followupId },
+                success: function (data) {
+                    $('#createFollowupPreview').html(data);
+                    $("#CreateModalHeader").text("Update Followup");
+                    $("#btnCreateFollowupPost").text("Update Followup");
+                    $("#btnCreateFollowupPost").addClass("btn-warning");
+                    $("#btnCreateFollowupPost").removeClass("btn-primary");
+                    $('#FollowupCreate').modal('show');
+
+                }
+            })
+        }
+
+    </script>>
+
+
+}
+

@@ -1,0 +1,196 @@
+﻿@model IEnumerable<TMS_Project.Models.Followup>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">Followups</h4>
+                @if(User.IsInRole("Team member"))
+                {
+                <a  id="btnCreateFollowup" class="btn btn-primary">Create New</a>
+                }
+                    
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="example4" class="display table table-striped">
+                        <thead>
+                            <tr>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.DueDate)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Remarks)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Status)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.FollowupTitle)
+                                </th>
+
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Task)
+                                </th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.DueDate)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Remarks)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Status)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.FollowupTitle)
+                                    </td>
+
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Task.TaskId)
+                                    </td>
+                                    <td>
+                                        <div class="d-flex">
+                                            <a class="btn btn-info btn-sm m-2" onclick="EditFollowup(@item.FollowupId)" title="Edit"><i class="fa fa-edit"></i></a>
+                                            <a class="btn btn-warning btn-sm m-2" onclick="DetailFollowup(@item.FollowupId)"><i class="fa fa-info"></i></a>
+                                            <form asp-action="Delete" id="deleteForm">
+                                                <input type="hidden" name="id" value="@item.FollowupId" asp-for="@item.FollowupId" />
+                                                <button type="submit" class="btn btn-danger btn-sm m-2"><i class="fa fa-trash"></i></button>
+                                        </form>
+                                        </div>
+
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade bd-example-modal-lg" id="FollowupCreate" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="CreateModalHeader"> </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal">
+                </button>
+            </div>
+            <div class="modal-body" id="createFollowupPreview">
+                @await Html.PartialAsync("/Views/Followups/_Create.cshtml", new Followup())
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade bd-example-modal-lg" id="FollowupsDetail" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"> Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal">
+                </button>
+            </div>
+            <div class="modal-body" id="DetailFollowupsPreview">
+                @await Html.PartialAsync("/Views/Followups/_Details.cshtml", new Followup())
+            </div>
+
+        </div>
+    </div>
+</div>
+@section Scripts {
+
+    <script type="text/javascript">
+
+    $(function () {
+        $("#btnCreateFollowup").click(function () {
+                $("#CreateModalHeader").text("Create Followup");
+                $("#btnCreateFollowupPost").text("Create Followup");
+                $("#btnCreateFollowupPost").addClass("btn-primary");
+                $("#btnCreateFollowupPost").removeClass("btn-warning");
+
+                $("#FollowupCreate").modal("show");
+        });
+
+    });
+
+
+        function InsertFollowup() {
+
+            var form = $("#CreateFollowupForm")[0];
+            var isValid = form.checkValidity();
+
+            if (!isValid) {
+            }
+            else {
+                
+
+                $.ajax({
+                    url: '@Url.Action("Create", "Followups")',
+                    type: 'POST',
+                    data: $(form).serialize(),
+                    success: function (data) {
+                        if (data.success) {
+                            window.location.reload();
+                        }
+                        // Check if response contains partial view
+                        $("#createFollowupPreview").html(data);
+
+                        if ($("#hdnfollowupId ").val() > 0) {
+
+
+                            $("#btnCreateFollowupPost").text("Update Followup");
+                            $("#btnCreateFollowupPost").addClass("btn-warning");
+                            $("#btnCreateFollowupPost").removeClass("btn-primary");
+                        }
+                        else {
+                            $("#btnCreateFollowupPost").text("Create Followup");
+                            $("#btnCreateFollowupPost").addClass("btn-primary");
+                            $("#btnCreateFollowupPost").removeClass("btn-warning");
+                        }
+
+                        $("#FollowupCreate").modal("show");
+                    }
+                });
+            }
+            form.classList.add("was-validated");
+            return false;
+        }
+
+        function EditFollowup(followupId) {
+
+            $.ajax({
+                type: "Get",
+                url: '@Url.Action("Edit", "Followups")',
+                data: { id: followupId },
+                success: function (data) {
+                    $('#createFollowupPreview').html(data);
+                    $("#CreateModalHeader").text("Update Followup");
+                    $("#btnCreateFollowupPost").text("Update Followup");
+                    $("#btnCreateFollowupPost").addClass("btn-warning");
+                    $("#btnCreateFollowupPost").removeClass("btn-primary");
+                    $('#FollowupCreate').modal('show');
+
+                }
+            })
+        }
+
+    </script>>
+
+
+    }

@@ -1,0 +1,256 @@
+﻿@model IEnumerable<TMS_Project.Models.User>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">Users List</h4>
+                <a id="btnCreateUser" class="btn btn-primary">Create New</a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="example4" class="display table table-striped">
+                        <thead>
+                            <tr>
+                                <th>
+                                    User Name
+                                </th>
+
+                                <th>
+                                    Email
+                                </th>
+
+
+                               
+                                <th>
+                                    Role Name
+                                </th>
+                                <th>
+                                    Assigned To
+                                </th>
+                                <th>
+                                    Contact
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @item.UserFirstName @item.UserLastName
+                                    </td>
+
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Email)
+                                    </td>
+
+
+                                  
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Role.RoleName)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Manager.UserName)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Contact)
+                                    </td>
+                                    <td>
+                                        <div class="d-flex">
+                                            <a class="btn btn-info btn-sm m-2" onclick="EditUser(@item.UserId)" title="Edit"><i class="fa fa-edit"></i></a>
+                                            @* <a class="btn btn-warning btn-sm m-2" onclick="DetailUser(@item.UserId)"><i class="fa fa-info"></i></a> *@
+
+                                            <form asp-action="Delete" class="deleteForm">
+                                                <input type="hidden" name="id" value="@item.UserId" asp-for="@item.UserId" />
+                                                <button type="submit" class="btn btn-danger btn-sm m-2"><i class="fa fa-trash"></i></button>
+                                            </form>
+                                            @if(item.Role.RoleName == "Team member" || item.Role.RoleName == "Team Lead")
+                                            {
+                                            <a class="btn btn-primary" onclick="DetailUser(@item.UserId)">Assign</a>
+                                                
+                                            }
+                                        </div>
+
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade bd-example-modal-lg" id="UserCreate" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="CreateModalHeader"> </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal">
+                </button>
+            </div>
+            <div class="modal-body" id="createUserPreview">
+                @await Html.PartialAsync("/Views/Users/_Create.cshtml", new User())
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade bd-example-modal-lg" id="UserDetail" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"> Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal">
+                </button>
+            </div>
+            <div class="modal-body" id="DetailUserPreview">
+                @await Html.PartialAsync("/Views/Users/_Details.cshtml", new User())
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+    <script type="text/javascript">
+
+
+        $("#btnCreateUser").click(function () {
+
+            $("#btnCreateUserPost").text("Create User")
+            $("#CreateModalHeader").text("Create User")
+            $("#btnCreateUserPost").addClass("btn-primary")
+            $("#btnCreateUserPost").removeClass("btn-warning")
+            $("#UserCreate").modal("show")
+
+        });
+
+
+
+
+
+        function InsertUser() {
+            var form = $("#CreateUserForm")[0];
+            var isValid = form.checkValidity();
+
+            if (!isValid) {
+
+                console.log("error occur")
+            }
+            else {
+
+
+                $.ajax({
+                    url: '@Url.Action("Create", "Users")',
+                    type: 'POST',
+                    data: $(form).serialize(),
+                    success: function (data) {
+
+
+                        if (data.success) {
+
+                            window.location.reload();
+                        }
+
+
+
+                        // check if response contains partial view
+                        $("#createUserPreview").html(data.responseData);
+
+                        if ($("#hdnUserId").val() > 0) {
+
+
+                            $("#btnCreateUserPost").text("update task");
+                            $("#btnCreateUserPost").addClass("btn-warning");
+                            $("#btnCreateUserPost").removeClass("btn-primary");
+                        }
+                        else {
+                            $("#btnCreateUserPost").text("create task");
+                            $("#btnCreateUserPost").addClass("btn-primary");
+                            $("#btnCreateUserPost").removeClass("btn-warning");
+                        }
+
+
+                        $("#UserCreate #errorMsg").addClass("alert alert-danger");
+                        $("#UserCreate #errorMsg").html(data.message);
+
+
+                        $("#UserCreate").modal("show");
+
+                    }
+                });
+            }
+            form.classList.add("was-validated");
+            return false;
+        }
+
+
+        function EditUser(userId) {
+
+            $.ajax({
+                type: "Get",
+                url: '@Url.Action("Edit", "Users")',
+                data: { id: userId },
+                success: function (data) {
+                    $('#createUserPreview').html(data);
+                    $("#CreateModalHeader").text("Update User");
+                    $("#btnCreateUserPost").text("Update User");
+                    $("#btnCreateUserPost").addClass("btn-warning");
+                    $("#btnCreateUserPost").removeClass("btn-primary");
+                    $('#UserCreate').modal('show');
+
+                }
+            })
+        }
+
+
+
+        function DetailUser(userId) {
+            $.ajax({
+                type: "Get",
+                url: '@Url.Action("Details", "Users")',
+                data: { id: userId },
+                success: function (data) {
+                    $('#DetailUserPreview').html(data);
+
+                    $('#UserDetail').modal('show');
+
+                }
+            })
+        }
+
+
+        $('.deleteForm').submit(function (event) {
+            var form = this;
+            event.preventDefault();
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, delete it!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                    // If user confirms, form submission proceeds as usual
+                } else {
+                    event.preventDefault();
+                }
+            });
+        });
+
+    </script>
+}

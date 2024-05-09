@@ -1,0 +1,89 @@
+﻿@model TMS_Project.Models.Task
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+
+<div class="row">
+    <div class="col-md-12 col-lg-12 col-sm-12">
+        <div class="form-validation">
+            <form asp-action="Create" id="CreateTaskForm" class="needs-validation" novalidate>
+                <input type="hidden" asp-for="TaskId" id="hdnTaskId" />
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group row">
+                
+                        
+                    <div class="col-md-6">
+                        <label asp-for="Title" class="control-label"></label>
+                        <input asp-for="Title" class="form-control" required />
+                        <div class="invalid-feedback">
+                            Please enter a Title.
+                        </div>
+
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Description" class="control-label"></label>
+                        <input asp-for="Description" class="form-control" required />
+                        <div class="invalid-feedback">
+                            Please enter  Description.
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="DueDate" class="control-label"></label>
+                        <input asp-for="DueDate" class="form-control" required />
+                        <div class="invalid-feedback">
+                            Please enter a Valid Date.
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Priority" class="control-label"></label>
+                        <select asp-for="Priority" class="form-control" >
+                            <option>------Select User-------</option>
+                            <option value="1">Low</option>
+                            <option value="2">Medium</option>
+                            <option value="3">High</option>
+                        </select>
+                        <div class="invalid-feedback">
+                            Please enter  Priority.
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="AssignedTo" class="control-label">Assigned To</label>
+                        <select asp-for="AssignedTo" class="form-control" asp-items="ViewBag.AssignedTo">
+                            <option>------Select User-------</option>
+                        </select>
+
+                        <div class="invalid-feedback">
+                            Please enter  Assigned Person.
+                        </div>
+                    </div>
+
+                 
+                    <div class="col-md-6">
+                        <label asp-for="ProjectId" class="control-label">Project Name</label>
+                        <select asp-for="ProjectId" class="form-control" asp-items="@ViewBag.ProjectId">
+                            <option>------Select Project-------</option>
+                        </select>
+
+                    </div>
+               
+             @*        <div class="col-md-6">
+                        <label asp-for="StatusId" class="control-label">Status Name</label>
+                        <select asp-for="StatusId" class="form-control" asp-items="ViewBag.StatusId">
+                            <option>------Select Project Status-------</option>
+
+                        </select>
+
+                    </div> *@
+          
+
+                    <div class="col-md-12">
+                        <a id="btnCreateTaskPost" onclick="InsertTask()" class="btn mb-2"></a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+

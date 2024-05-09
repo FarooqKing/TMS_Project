@@ -1,0 +1,71 @@
+﻿@model TMS_Project.Models.Followup
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+
+<div class="row">
+    <div class="col-md-12 col-lg-12 col-sm-12">
+        <div class="form-validation">
+            <form asp-action="Create" id="CreateFollowupForm" class="needs-validation" novalidate>
+                <input type="hidden" asp-for="FollowupId" value="@Model.FollowupId" id="hdnFollowupId" />  
+                <input type="hidden" asp-for="TaskId" id="hdnTaskId" value="@Model.TaskId" />
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group">
+                    <label asp-for="FollowupTitle" class="control-label"></label>
+                    <input asp-for="FollowupTitle" class="form-control" required />
+                    <div class="invalid-feedback">
+                        Please enter a FollowupTitle.
+                    </div>
+                    <span asp-validation-for="FollowupTitle" class="text-danger"></span>
+                </div>
+            <div class="form-group">
+                <label asp-for="DueDate" class="control-label"></label>
+                <input asp-for="DueDate" class="form-control" required />
+                    <div class="invalid-feedback">
+                        Please enter a Project Name.
+                    </div>
+                <span asp-validation-for="DueDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Remarks" class="control-label"></label>
+                    <input asp-for="Remarks" class="form-control" required />
+                    <div class="invalid-feedback">
+                        Please enter a Project Name.
+                    </div>
+                <span asp-validation-for="Remarks" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Status" class="control-label"></label>
+                    <select asp-for="Status" class="form-control">
+                        <option>------Select User-------</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Complete">Complete</option>
+                        <option value="Cancel">Cancel</option>
+                        <option value="OverDue">OverDue</option>
+                        <option value="Inprogress">Inprogress</option>
+                    </select>
+                    <div class="invalid-feedback">
+                        Please enter a Project Name.
+                    </div>
+                <span asp-validation-for="Status" class="text-danger"></span>
+            </div>
+            
+            @* <div class="form-group">
+                    <label asp-for="TaskId" class="control-label" required></label>
+                <select asp-for="TaskId" class ="form-control" asp-items="ViewBag.TaskId"></select>
+                    <div class="invalid-feedback">
+                        Please enter a Project Name.
+                    </div>
+            </div> *@
+
+                <div class="col-md-6">
+                    <a id="btnCreateFollowupPost" onclick="InsertFollowup()" class="btn mb-2"></a>
+                </div>
+        </form>
+    </div>
+</div>
+
+
+

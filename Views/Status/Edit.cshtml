@@ -1,0 +1,30 @@
+﻿@model TMS_Project.Models.Status
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Status</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="StatusId" />
+            <div class="form-group">
+                <label asp-for="StatusName" class="control-label">Status Name</label>
+                <input asp-for="StatusName" class="form-control" required/>
+                <span asp-validation-for="StatusName" class="text-danger"></span>
+            </div>
+          
+        </form>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
