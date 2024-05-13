@@ -1,5 +1,8 @@
+using _Helper;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using Models;
+using Services;
 using TMS.Models;
 using TMS_Project.Models;
 
@@ -10,6 +13,8 @@ builder.Services.AddHttpContextAccessor();
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<SoftDeleteInterceptor>();
+builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
+builder.Services.AddScoped<IMailService, MailService>();
 
 builder.Services.AddDbContext<TmsContext>((sp, options) =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("Tms-project")).AddInterceptors(sp.GetRequiredService<SoftDeleteInterceptor>()));

@@ -70,7 +70,7 @@
                                                 <input type="hidden" name="id" value="@item.UserId" asp-for="@item.UserId" />
                                                 <button type="submit" class="btn btn-danger btn-sm m-2"><i class="fa fa-trash"></i></button>
                                             </form>
-                                            @if(item.Role.RoleName == "Team member" || item.Role.RoleName == "Team Lead")
+                                            @if(item.RoleId == 1009 || item.RoleId == 1010)
                                             {
                                             <a class="btn btn-primary" onclick="DetailUser(@item.UserId)">Assign</a>
                                                 

@@ -35,7 +35,7 @@ public partial class TmsContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=UMAR-PC; Database=TMS ; Trusted_Connection=True; TrustServerCertificate=True;");
+        => optionsBuilder.UseSqlServer("server=UMAR-PC;database=TMS;trusted_connection=true; TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -68,6 +68,10 @@ public partial class TmsContext : DbContext
             entity.Property(e => e.ComentText).HasColumnType("text");
             entity.Property(e => e.MDelete).HasColumnName("mDelete");
             entity.Property(e => e.TaskId).HasColumnName("TaskID");
+
+            entity.HasOne(d => d.Project).WithMany(p => p.Comments)
+                .HasForeignKey(d => d.ProjectId)
+                .HasConstraintName("FK_Comments_Project");
 
             entity.HasOne(d => d.Task).WithMany(p => p.Comments)
                 .HasForeignKey(d => d.TaskId)
@@ -190,14 +194,14 @@ public partial class TmsContext : DbContext
                 .HasConstraintName("FK_Users_Roles");
         });
 
-    modelBuilder.Entity<Project>().HasQueryFilter(c => c.MDelete==false || c.MDelete==null);
-    modelBuilder.Entity<User>().HasQueryFilter(c => c.MDelete==false || c.MDelete==null);
-    modelBuilder.Entity<Task>().HasQueryFilter(c => c.MDelete==false || c.MDelete==null);
-    modelBuilder.Entity<Followup>().HasQueryFilter(c => c.MDelete==false || c.MDelete==null);
-    modelBuilder.Entity<Role>().HasQueryFilter(c => c.MDelete==false || c.MDelete==null);
-    modelBuilder.Entity<Status>().HasQueryFilter(c => c.MDelete==false || c.MDelete==null);
-    modelBuilder.Entity<Comment>().HasQueryFilter(c => c.MDelete==false || c.MDelete==null);
+        modelBuilder.Entity<Project>().HasQueryFilter(c => c.MDelete == false || c.MDelete == null);
+        modelBuilder.Entity<Task>().HasQueryFilter(c => c.MDelete == false || c.MDelete == null);
+        modelBuilder.Entity<User>().HasQueryFilter(c => c.MDelete == false || c.MDelete == null);
+        modelBuilder.Entity<Role>().HasQueryFilter(c => c.MDelete == false || c.MDelete == null);
+        modelBuilder.Entity<Followup>().HasQueryFilter(c => c.MDelete == false || c.MDelete == null);
         modelBuilder.Entity<Notification>().HasQueryFilter(c => c.MDelete == false || c.MDelete == null);
+        modelBuilder.Entity<Status>().HasQueryFilter(c => c.MDelete == false || c.MDelete == null);
+        modelBuilder.Entity<Comment>().HasQueryFilter(c => c.MDelete == false || c.MDelete == null);
         OnModelCreatingPartial(modelBuilder);
     }
 

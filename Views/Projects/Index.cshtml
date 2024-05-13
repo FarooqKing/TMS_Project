@@ -185,29 +185,32 @@
 
 
         function ProjectStatusFunc() {
-                alert('aaaa');
-                       var form = $("#CreateStatusForm")[0];
+            var form = $("#CreateProjectStatusForm")[0];
+            $.ajax({
+                url: '@Url.Action("ProjectStatus", "Projects")',
+                type: 'POST',
+                data: $(form).serialize(),
+                success: function (data) {
+                    if (data.success) {
+
+                        window.location.reload();
+                        $("#projectStatus").modal("hide");
+                    }
 
 
-                           $.ajax({
-                               url: '@Url.Action("ProjectStatus", "Projects")',
-                               type: 'POST',
-                               data: $(form).serialize(),
-                               success: function (data) {
-                                   if (data.success) {
 
-                                       window.location.reload();
-                                   }
-                                   // Check if response contains partial view
-                                   $("#projectStatusPreview").html(data);
 
-                                   $("#projectStatus").modal("show");
-                               }
-                           });
+                    $("#projectStatus #errorMsg").addClass("alert alert-danger");
+                    $("#projectStatus #errorMsg").html(data.message);
+                    $("#projectStatus").modal("show");
 
-                       form.classList.add("was-validated");
-                       return false;
+                }
+            });
+
         }
+
+
+
         function InsertProject() {
 
             var form = $("#CreateProjectForm")[0];

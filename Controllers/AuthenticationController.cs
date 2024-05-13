@@ -82,7 +82,7 @@ namespace TMS_Project.Controllers
 
                     if (roleName == "Admin")
                     {
-                        return RedirectToAction("Home", "Home");
+                        return RedirectToAction("Index", "Users");
                     }
                     else if (roleName == "Project Manager")
                     {

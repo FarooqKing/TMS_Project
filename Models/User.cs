@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace TMS_Project.Models;
 
-public partial class User :ISoftDeleteTable
+public partial class User
 {
     public int UserId { get; set; }
 

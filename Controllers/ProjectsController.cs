@@ -8,7 +8,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using TMS.Models;
 using TMS_Project.Models;
+
 
 namespace TMS.Controllers
 {
@@ -20,86 +22,32 @@ namespace TMS.Controllers
         private readonly TmsContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly int UserID;
+        private readonly Services.IMailService _mailService;
 
-
-
-        public ProjectsController(TmsContext context, IHttpContextAccessor httpContextAccessor)
+        public ProjectsController(TmsContext context, IHttpContextAccessor httpcontextAccessor, Services.IMailService mailService)
         {
             _context = context;
-            _httpContextAccessor = httpContextAccessor;
+            _httpContextAccessor = httpcontextAccessor;
             UserID = Convert.ToInt32(_httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier));
+            _mailService = mailService;
         }
 
-        // GET: Projects
-        //public async Task<IActionResult> Index(int id)
-        //{
-        //    var managerUsers = await _context.Users.Where(u => (u.RoleId == 1008) && (u.MDelete == false || u.MDelete == null)).ToListAsync();
-        //    var Statuses = await _context.Statuses.Where(x =>( x.MDelete == false || x.MDelete == null)).ToListAsync();
 
-        //    ViewData["ManagerId"] = new SelectList(managerUsers, "UserId", "UserName");
-        //    ViewData["StatusId"] = new SelectList(Statuses, "StatusID", "StatusName");
 
-        //    var currentUserId = Convert.ToInt32(User.FindFirstValue(ClaimTypes.NameIdentifier));
-        //    var teamMembers = new List<User>();
 
-        //    if (_httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Role) == "Admin")
-        //    {
-        //        teamMembers = await _context.Users.ToListAsync();
-        //    }
-        //    else
-        //    {
-        //        teamMembers = await _context.Users.Where(x => x.ManagerId == UserID).ToListAsync();
-        //    }
-
-        //    ViewBag.teamlead = new SelectList(teamMembers, "UserId", "UserName");
-        //    // Retrieve the projects based on user's role and assignment
-        //    var projects = Enumerable.Empty<Project>();
-
-        //    if (User.IsInRole("Admin"))
-        //    {
-        //        // For admin, show all projects
-        //        projects = await _context.Projects
-        //            .Where(p => p.MDelete == false || p.MDelete == null)
-        //            .Include(p => p.Manager)
-        //            .Include(p => p.TeamLead)
-        //            .ToListAsync();
-        //    }
-        //    else if (User.IsInRole("Project Manager"))
-        //    {
-        //        // For project manager, show only projects where they are the manager
-        //        projects = await _context.Projects
-        //            .Where(p => p.ManagerId == currentUserId && (p.MDelete == false || p.MDelete == null))
-        //            .Include(p => p.Manager)
-        //            .Include(p => p.TeamLead)
-        //            .ToListAsync();
-        //    }
-        //    else if (User.IsInRole("Team Lead"))
-        //    {
-        //        // For team lead, show only projects where they are the team lead
-        //        projects = await _context.Projects
-        //            .Where(p => p.TeamLeadId == currentUserId && (p.MDelete == false || p.MDelete == null))
-        //            .Include(p => p.Manager)
-        //            .Include(p => p.TeamLead)
-        //            .ToListAsync();
-        //    }
-
-        //    return View(projects);
-        //}
 
         public async Task<IActionResult> Index(int? id)
         {
-            // Your existing code to fetch manager users and statuses remains unchanged
-            var managerUsers = await _context.Users.Where(u => (u.RoleId == 1008) && (u.MDelete == false || u.MDelete == null)).ToListAsync();
-            var Statuses = await _context.Statuses.Where(x => (x.MDelete == false || x.MDelete == null)).ToListAsync();
 
-            // Rest of your existing code for setting ViewData and ViewBag remains unchanged
+            var managerUsers = await _context.Users.Where(u => u.RoleId == 2).ToListAsync();
+            var Statuses = await _context.Statuses.ToListAsync();
+
+
 
             var currentUserId = Convert.ToInt32(User.FindFirstValue(ClaimTypes.NameIdentifier));
             var teamMembers = new List<User>();
 
-            // Your existing code for determining team members based on user's role remains unchanged
 
-            // Retrieve the projects based on user's role and assignment
             var projects = Enumerable.Empty<Project>();
 
             if (id != null)
@@ -113,10 +61,10 @@ namespace TMS.Controllers
             }
             else
             {
-                // No status ID provided (not clicked on a status name), show all projects based on user's role
+
                 if (User.IsInRole("Admin"))
                 {
-                    // For admin, show all projects
+
                     projects = await _context.Projects
                         .Where(p => p.MDelete == false || p.MDelete == null)
                         .Include(p => p.Manager)
@@ -125,7 +73,7 @@ namespace TMS.Controllers
                 }
                 else if (User.IsInRole("Project Manager"))
                 {
-                    // For project manager, show only projects where they are the manager
+
                     projects = await _context.Projects
                         .Where(p => p.ManagerId == currentUserId && (p.MDelete == false || p.MDelete == null))
                         .Include(p => p.Manager)
@@ -134,7 +82,7 @@ namespace TMS.Controllers
                 }
                 else if (User.IsInRole("Team Lead"))
                 {
-                    // For team lead, show only projects where they are the team lead
+
                     projects = await _context.Projects
                         .Where(p => p.TeamLeadId == currentUserId && (p.MDelete == false || p.MDelete == null))
                         .Include(p => p.Manager)
@@ -142,9 +90,10 @@ namespace TMS.Controllers
                         .ToListAsync();
                 }
             }
-
+            ViewData["ManagerId"] = new SelectList(_context.Users.Where(x => x.RoleId == 1008 && (x.MDelete==false ||x.MDelete ==null)), "UserId", "UserName");
             return View(projects);
         }
+
 
 
         // GET: Projects/Details/5
@@ -182,7 +131,7 @@ namespace TMS.Controllers
             activityLog.UserId = UserID;
             try
             {
-                ViewData["ManagerId"] = new SelectList(_context.Users.Where(x => x.MDelete == false || x.MDelete == null), "UserId", "UserName", project.ManagerId);
+                ViewData["ManagerId"] = new SelectList(_context.Users.Where(x => x.RoleId == 1008), "UserId", "UserName", project.ManagerId);
                 if (ModelState.IsValid)
                 {
                     if (project.ProjectId == null || project.ProjectId <= 0)
@@ -197,6 +146,18 @@ namespace TMS.Controllers
                         activityLog.LogText = $"Project has been Created at {DateTime.Now} by user id {UserID}";
                         _context.Add(activityLog);
                         await _context.SaveChangesAsync();
+
+
+                        var user = _context.Users.Where(x => x.UserId == UserID).FirstOrDefault();
+
+                        var assignTo = _context.Users.Where(x => x.UserId == project.ManagerId).FirstOrDefault();
+
+                        string Message = $"New Project {project.ProjectName} has been assigned to you by {user.UserName} at {DateTime.Now.ToString("dd MMM, yyyy hh:mm tt")}";
+
+
+
+                        await _mailService.SendMailAsync(assignTo.Email, "New Project Assigned", Message);
+
                     }
                     else
                     {
@@ -250,8 +211,8 @@ namespace TMS.Controllers
             }
 
             // Assuming there is a property called RoleId in your User model to represent the role
-            int managerRoleId = 1008;
-            int teamleadRoleId = 1010;
+            int managerRoleId = 2;
+            int teamleadRoleId = 6;
 
             // Filter users based on their role
             var managers = _context.Users.Where(x => x.RoleId == managerRoleId);
@@ -371,7 +332,7 @@ namespace TMS.Controllers
 
 
 
-            var managers = await _context.Users.Where(u => u.Role.RoleId == 1008).ToListAsync();
+            var managers = await _context.Users.Where(u => u.Role.RoleId == 1008 && (u.MDelete==false || u.MDelete==null )).ToListAsync();
             ViewBag.Managers = new SelectList(managers, "UserId", "UserName");
             var teamMembers = new List<User>();
 
@@ -399,7 +360,7 @@ namespace TMS.Controllers
             activityLog.ProjectId = null;
             activityLog.TaskId = null;
             activityLog.UserId = UserID;
-            var managers = await _context.Users.Where(u => u.Role.RoleId == 1008).ToListAsync();
+            var managers = await _context.Users.Where(u => u.Role.RoleId == 1008 && (u.MDelete ==false || u.MDelete==null)).ToListAsync();
             ViewBag.Managers = new SelectList(managers, "UserId", "UserName", project.ManagerId);
 
             var teamlead = await _context.Users.Where(u => u.Role.RoleId == 1010).ToListAsync();
@@ -423,10 +384,28 @@ namespace TMS.Controllers
                 project.TeamLeadId = newProject.TeamLeadId;
 
                 _context.Update(project);
-                await _context.SaveChangesAsync();
+              
+
+
+
                 activityLog.LogText = $"Project has been Assign to User at {DateTime.Now} by user id {UserID}";
                 _context.Add(activityLog);
                 await _context.SaveChangesAsync();
+                //var user = _context.Users.Where(x => x.UserId == UserID).FirstOrDefault();
+
+                //var assignTo = _context.Users.Where(x => x.UserId == project.ManagerId).FirstOrDefault();
+
+                //string Message = $"New Project {project.ProjectName} has been assigned to you by {user.UserName} at {DateTime.Now.ToString("dd MMM, yyyy hh:mm tt")}";
+
+
+
+                //await _mailService.SendMailAsync(assignTo.Email, "New Project Assigned", Message);
+
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true });
+
+
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -439,7 +418,7 @@ namespace TMS.Controllers
                     throw;
                 }
             }
-            return Json(new { success = true });
+           
 
 
         }
@@ -449,7 +428,7 @@ namespace TMS.Controllers
             var project = await _context.Projects.FindAsync(id);
             var Statuses = await _context.Statuses.Where(x => (x.MDelete == false)).ToListAsync();
 
-            ViewData["StatusId"] = new SelectList(Statuses, "StatusID", "StatusName",project.StatusId);
+            ViewData["StatusId"] = new SelectList(Statuses, "StatusID", "StatusName", project.StatusId);
 
             if (id == null)
             {
@@ -464,7 +443,7 @@ namespace TMS.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ProjectStatus([Bind("ProjectId,StatusId,StatusName")] Project project)
+        public async Task<IActionResult> ProjectStatus([Bind("ProjectId,StatusId,StatusName,Comment")] Project project)
         {
             if (project == null || project.ProjectId < 0)
             {
@@ -479,15 +458,29 @@ namespace TMS.Controllers
                     return NotFound();
                 }
 
-                // Update relevant properties of the projectToUpdate object
-                projectToUpdate.StatusId = project.StatusId;
-                projectToUpdate.Status.StatusName = project.Status.StatusName; // Assuming you want to update the status name too
-                projectToUpdate.UpdatedBy = UserID;
-                projectToUpdate.UpdatedAt = DateTime.Now;
+                var newProject = project;
 
-                _context.Update(projectToUpdate);
+                project = projectToUpdate;
+
+                project.StatusId = newProject.StatusId;
+
+                project.UpdatedBy = UserID;
+                project.UpdatedAt = DateTime.Now;
+
+                _context.Projects.Update(projectToUpdate);
                 await _context.SaveChangesAsync();
 
+                var comments = newProject.Comment;
+
+                comments.ProjectId = newProject.ProjectId;
+                comments.CreatedBy = UserID;
+                comments.CreatedAt = DateTime.Now;
+                comments.UpdatedBy = UserID;
+                comments.UpdatedAt = DateTime.Now;
+
+
+                _context.Comments.Add(comments);
+                await _context.SaveChangesAsync();
                 return Json(new { success = true });
             }
             catch (DbUpdateConcurrencyException)
@@ -498,7 +491,7 @@ namespace TMS.Controllers
                 }
                 else
                 {
-                    throw; // Consider handling this exception case further as needed
+                    throw;
                 }
             }
         }

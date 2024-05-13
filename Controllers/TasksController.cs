@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Build.Framework;
 using Microsoft.EntityFrameworkCore;
+using Services;
 using TMS_Project.Models;
 
 namespace TMS.Controllers
@@ -20,17 +21,18 @@ namespace TMS.Controllers
         private readonly TmsContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly int UserId;
+        private readonly Services.IMailService _mailService;
 
-        public TasksController(TmsContext context, IHttpContextAccessor httpcontextAccessor)
+        public TasksController(TmsContext context, IHttpContextAccessor httpcontextAccessor, Services.IMailService mailService)
         {
             _context = context;
             _httpContextAccessor = httpcontextAccessor;
             UserId = Convert.ToInt32(_httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier));
-
+            _mailService = mailService;
         }
 
         // GET: Tasks
-        public async Task<IActionResult> Index(int? id)
+        public async Task<IActionResult> Index(int id)
         {
             var currentUserId = Convert.ToInt32(User.FindFirstValue(ClaimTypes.NameIdentifier));
             var currentUserRole = User.FindFirstValue(ClaimTypes.Role);
@@ -41,37 +43,31 @@ namespace TMS.Controllers
             if (User.IsInRole("Admin"))
             {
                 // Admin sees all tasks if project ID is specified
-                tasksQuery = id.HasValue ?
-                    _context.Tasks.Where(t => t.ProjectId == id) :
-                    _context.Tasks.Where(t => t.MDelete == false || t.MDelete == null);
+                tasksQuery =
+                    _context.Tasks.Where(t => t.ProjectId == id);
             }
             else if (User.IsInRole("Team Lead") || User.IsInRole("Project Manager"))
             {
-                if (id.HasValue)
+
+                // Retrieve the current project
+                var project = await _context.Projects.FindAsync(id) 
+;
+
+                // Check if the current user is the manager or team lead of the project
+                if (project.ManagerId == currentUserId || project.TeamLeadId == currentUserId)
                 {
-                    // Retrieve the current project
-                    var project = await _context.Projects.FindAsync(id);
+                    // Retrieve tasks assigned to the project
+                    tasksQuery = _context.Tasks.Where(t => t.ProjectId == id && (t.MDelete == false || t.MDelete == null));
 
-                    // Check if the current user is the manager or team lead of the project
-                    if (project.ManagerId == currentUserId || project.TeamLeadId == currentUserId)
-                    {
-                        // Retrieve tasks assigned to the project
-                        tasksQuery = _context.Tasks.Where(t => t.ProjectId == id && (t.MDelete == false || t.MDelete == null));
-
-                        // Log the generated SQL query for debugging
-                        Console.WriteLine(tasksQuery.ToQueryString());
-                    }
-                    else
-                    {
-                        // If the current user is not authorized to view tasks for the project, redirect to access denied page
-                        return RedirectToAction("AccessDenied", "Error");
-                    }
+                    // Log the generated SQL query for debugging
+                    Console.WriteLine(tasksQuery.ToQueryString());
                 }
                 else
                 {
-                    // If project ID is not specified, team leads or project managers cannot view tasks
+                    // If the current user is not authorized to view tasks for the project, redirect to access denied page
                     return RedirectToAction("AccessDenied", "Error");
                 }
+
             }
             else // Team member
             {
@@ -114,6 +110,7 @@ namespace TMS.Controllers
 
             return View(tasks);
         }
+
 
         //public async Task<IActionResult> Index(int? id)
         //{
@@ -180,9 +177,9 @@ namespace TMS.Controllers
 
 
         // GET: Tasks/Details/5
-      
-        
-     
+
+
+
         public async Task<IActionResult> TaskDetail(int? id)
         {
             if (id == null)
@@ -339,6 +336,17 @@ namespace TMS.Controllers
                     _context.Add(activityLog);
                     await _context.SaveChangesAsync();
 
+                    var user = _context.Users.Where(x => x.UserId == UserId).FirstOrDefault();
+
+                    var assignTo = _context.Users.Where(x => x.UserId == task.AssignedTo).FirstOrDefault();
+
+                    string Message = $"New Task {task.Title} has been assigned to you by {user.UserName} at {DateTime.Now.ToString("dd MMM, yyyy hh:mm tt")}";
+
+
+
+                    await _mailService.SendMailAsync(assignTo.Email, "New Task Assigned", Message);
+
+                    await _context.SaveChangesAsync();
                 }
                 else
                 {

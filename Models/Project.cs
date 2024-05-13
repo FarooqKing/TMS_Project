@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace TMS_Project.Models;
 
-public partial class Project : ISoftDeleteTable
+public partial class Project
 {
     public int ProjectId { get; set; }
 
@@ -27,8 +27,10 @@ public partial class Project : ISoftDeleteTable
 
     public virtual ICollection<ActivityLog> ActivityLogs { get; set; } = new List<ActivityLog>();
 
-    public virtual User? Manager { get; set; }
+    public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
+    public virtual Comment ? Comment { get; set; }
 
+    public virtual User? Manager { get; set; }
     public virtual Status? Status { get; set; }
 
     public virtual ICollection<Task> Tasks { get; set; } = new List<Task>();

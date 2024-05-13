@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace TMS_Project.Models;
 
-public partial class ActivityLog 
+public partial class ActivityLog
 {
     public int LogsId { get; set; }
 

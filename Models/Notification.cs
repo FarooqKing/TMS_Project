@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace TMS_Project.Models;
 
-public partial class Notification : ISoftDeleteTable
+public partial class Notification
 {
     public int NotificatonId { get; set; }
 

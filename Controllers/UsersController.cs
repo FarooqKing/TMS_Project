@@ -66,25 +66,6 @@ namespace TMS.Controllers
             return View(teamContext);
         }
 
-        // GET: Users/Details/5
-        //public async Task<IActionResult> Details(int? id)
-        //{
-        //    ViewData["ManagerId"] = new SelectList(_context.Users.Where(x => x.MDelete == false || x.MDelete == null), "UserId", "UserName");
-        //    if (id == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    var user = await _context.Users
-        //        .Include(u => u.Role)
-        //        .FirstOrDefaultAsync(m => m.UserId == id);
-        //    if (user == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    return PartialView("_Details", user);
-        //}
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)

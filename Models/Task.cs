@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace TMS_Project.Models;
 
-public partial class Task : ISoftDeleteTable
+public partial class Task
 {
     public int TaskId { get; set; }
 

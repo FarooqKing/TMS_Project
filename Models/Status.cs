@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace TMS_Project.Models;
 
-public partial class Status : ISoftDeleteTable
+public partial class Status
 {
     public int StatusId { get; set; }
 
