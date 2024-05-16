@@ -336,17 +336,16 @@ namespace TMS.Controllers
                     _context.Add(activityLog);
                     await _context.SaveChangesAsync();
 
-                    var user = _context.Users.Where(x => x.UserId == UserId).FirstOrDefault();
+                    //var user = _context.Users.Where(x => x.UserId == UserId).FirstOrDefault();
 
-                    var assignTo = _context.Users.Where(x => x.UserId == task.AssignedTo).FirstOrDefault();
+                    //var assignTo = _context.Users.Where(x => x.UserId == task.AssignedTo).FirstOrDefault();
 
-                    string Message = $"New Task {task.Title} has been assigned to you by {user.UserName} at {DateTime.Now.ToString("dd MMM, yyyy hh:mm tt")}";
+                    //string Message = $"New Task {task.Title} has been assigned to you by {user.UserName} at {DateTime.Now.ToString("dd MMM, yyyy hh:mm tt")}";
 
 
 
-                    await _mailService.SendMailAsync(assignTo.Email, "New Task Assigned", Message);
+                    //await _mailService.SendMailAsync(assignTo.Email, "New Task Assigned", Message);
 
-                    await _context.SaveChangesAsync();
                 }
                 else
                 {

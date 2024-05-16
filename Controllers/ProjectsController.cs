@@ -218,7 +218,7 @@ namespace TMS.Controllers
             var managers = _context.Users.Where(x => x.RoleId == managerRoleId);
             var teamleads = _context.Users.Where(x => x.RoleId == teamleadRoleId);
             // Select users for the SelectList
-            ViewData["ManagerId"] = new SelectList(managers, "UserId", "UserName", project.ManagerId);
+            ViewData["ManagerId"] = new SelectList(_context.Users.Where(x => x.RoleId == 1008), "UserId", "UserName", project.ManagerId);
 
             return PartialView("_Create", project);
         }

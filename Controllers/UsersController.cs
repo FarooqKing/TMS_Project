@@ -95,8 +95,7 @@ namespace TMS.Controllers
             return PartialView("_Details", user);
         }
 
-        // GET: Users/Create
-
+        
 
         // POST: Users/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
